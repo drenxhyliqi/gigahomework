@@ -48,7 +48,14 @@ def create_mentee(full_name: str, email: str, cohort: str) -> int:
 
     TODO: Implement using a parameterised INSERT ... RETURNING id.
     """
-    raise NotImplementedError("Implement create_mentee")
+    with get_connection() as connection:  # thirret funksioni qe ben lidhjen me databaze(perdoret with pasi qe mbyllja behet automatikisht)
+        with connection.cursor() as cur:  # me cursor iu qasemi tabelave ne databaze
+            cur.execute("INSERT INTO mentees (full_name, email, cohort) VALUES (%s, %s, %s) RETURNING id",
+                        # me execute e kemi dergu sql query-n ne databaze per run
+                        (full_name, email, cohort)
+                        )
+            row = cur.fetchone()  # me fetch merren te dhenat qe kthehn prej databazes
+            return row[0]
 
 
 def list_mentees() -> list[tuple]:
@@ -57,7 +64,11 @@ def list_mentees() -> list[tuple]:
     TODO: Implement using SELECT. Each row should contain
     (id, full_name, email, cohort, enrolled_on).
     """
-    raise NotImplementedError("Implement list_mentees")
+    with get_connection() as connection:
+        with connection.cursor() as cur:
+            cur.execute(
+                "SELECT id, full_name, email, cohort, enrolled_on FROM mentees ORDER BY full_name")
+            return cur.fetchall()
 
 
 def update_mentee(mentee_id: int, new_cohort: str) -> bool:
