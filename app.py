@@ -76,7 +76,12 @@ def update_mentee(mentee_id: int, new_cohort: str) -> bool:
 
     TODO: Implement using UPDATE. Check cursor.rowcount.
     """
-    raise NotImplementedError("Implement update_mentee")
+    with get_connection() as connection:
+        with connection.cursor() as cur:
+            cur.execute("UPDATE mentees SET cohort = %s WHERE id = %s",
+                        (new_cohort, mentee_id)
+                        )
+            return cur.rowcount == 1
 
 
 def delete_mentee(mentee_id: int) -> bool:
@@ -84,7 +89,10 @@ def delete_mentee(mentee_id: int) -> bool:
 
     TODO: Implement using DELETE. Check cursor.rowcount.
     """
-    raise NotImplementedError("Implement delete_mentee")
+    with get_connection() as connection:
+        with connection.cursor() as cur:
+            cur.execute("DELETE from mentees WHERE id = %s", (mentee_id,))
+            return cur.rowcount == 1
 
 
 # ---------------------------------------------------------------------------
@@ -100,6 +108,49 @@ def print_menu() -> None:
     print("  4) Delete mentee")
     print("  0) Quit")
 
+# Logjika per inputet e userit
+
+
+def handle_create():
+    try:
+        full_name = input("Sheno emrin e plote te intern-it: ")
+        email = input("Email: ")
+        cohort = input("Sheno batch-in: ")
+        mentee_id = create_mentee(full_name, email, cohort)
+        print("Intern-i u shtua me sukses!")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
+def handle_list():
+    try:
+        mentees = list_mentees()
+        for m in mentees:
+            print(m)
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
+def handle_update():
+    try:
+        mentee_id = int(input(
+            "Sheno id-n e internit qe deshironi t'ia ndryshoni batch-in: "))
+        new_cohort = input("Sheno batch-in e ri: ")
+        update_mentee(mentee_id, new_cohort)
+        print("Perditesimi u krye me sukses")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
+def handle_delete():
+    try:
+        mentee_id = int(input(
+            "Sheno id e internit qe deshironi ta largoni nga batch-i: "))
+        delete_mentee(mentee_id)
+        print("U fshi me sukses!")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
 
 def run_menu() -> None:
     """Run the interactive CLI menu.
@@ -108,13 +159,26 @@ def run_menu() -> None:
     tracebacks should ever be shown to the user. Wrap DB calls in try/except
     and print friendly error messages.
     """
-    raise NotImplementedError("Implement run_menu")
+    while True:
+        print_menu()
+        zgjedh = input("Zgjedh: ")
+        if zgjedh == "0":
+            break
+        elif zgjedh == "1":
+            handle_create()
+        elif zgjedh == "2":
+            handle_list()
+        elif zgjedh == "3":
+            handle_update()
+        elif zgjedh == "4":
+            handle_delete()
+        else:
+            print("Ky inputt nuk pranohet provo perseri!")
 
 
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
     try:
         run_menu()
