@@ -80,3 +80,27 @@ def assessment_summary():
                 GROUP BY assessments.title
             """)
             return cur.fetchall()
+
+
+def record_assessment_with_scores(title, max_score, held_on, scores_by_email):
+    with get_connection() as connection:
+        with connection.cursor() as cur:
+            cur.execute("""
+                        INSERT INTO assessments (title,max_score, held_on) VALUES
+                        (%s,%s,%s) RETURNING id
+                        """, (title, max_score, held_on)
+                        )
+            assessment_id = cur.fetchone()[0]
+            for email, score in scores_by_email.items():
+                cur.execute("""
+                            SELECT id FROM mentees WHERE email = %s
+                            """, (email,))
+                row = cur.fetchone()
+                if row is None:
+                    raise ValueError(f"Mentees me email {email} nuk u gjet")
+                mentee_id = row[0]
+                cur.execute(
+                    """
+                    INSERT INTO assessment_scores(mentee_id,assessment_id, score) VALUES (%s,%s,%s)
+                    """, (mentee_id, assessment_id, score)
+                )
