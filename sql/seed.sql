@@ -12,3 +12,10 @@ INSERT INTO mentees (full_name, email, cohort) VALUES
     ('Fjolla Lushta',    'fjolla@example.com',   'B5'),
     ('Vese Emini',       'vese@example.com',     'B5')
 ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO assessments(title,max_score,held_on) VALUES
+    ('Month 1 assessment', 95, '2026-04-27');
+
+INSERT INTO assessment_scores(mentee_id, assessment_id, score) VALUES
+    (3, 1, 70),
+    (4, 1, 65);
