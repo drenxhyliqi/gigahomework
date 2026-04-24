@@ -3,6 +3,7 @@ from queries import (
     create_mentee, list_mentees, update_mentee, delete_mentee,
     average_score_per_mentee, mentees_below_threshold, assessment_summary
 )
+import argparse
 
 
 def handle_create():
