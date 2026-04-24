@@ -83,6 +83,39 @@ def run_menu() -> None:
             print("Ky inputt nuk pranohet provo perseri!")
 
 
+# Per PART C CLI command error handlers
+def cli_add(args):
+    try:
+        create_mentee(args.name, args.email, args.cohort)
+        print("U shtua me sukses!")
+    except psycopg.errors.UniqueViolation:
+        print("Gabim: Ky email ekziston tashmë!")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
+def cli_update(args):
+    try:
+        updated = update_mentee(args.id, args.cohort)
+        if updated:
+            print("U përditësua me sukses!")
+        else:
+            print("Gabim: Mentee me këtë ID nuk ekziston!")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
+def cli_delete(args):
+    try:
+        deleted = delete_mentee(args.id)
+        if deleted:
+            print("U fshi me sukses!")
+        else:
+            print("Gabim: Mentee me këtë ID nuk ekziston!")
+    except Exception as e:
+        print(f"Gabim: {e}")
+
+
 def run_cli():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -100,20 +133,19 @@ def run_cli():
     mentee_add.add_argument("--name", required=True)
     mentee_add.add_argument("--email", required=True)
     mentee_add.add_argument("--cohort", required=True)
-    mentee_add.set_defaults(func=lambda args: create_mentee(
-        args.name, args.email, args.cohort))
+    mentee_add.set_defaults(func=cli_add)
 
     # mentee update
     mentee_update = mentee_sub.add_parser("update")
     mentee_update.add_argument("--id", required=True, type=int)
     mentee_update.add_argument("--cohort", required=True)
     mentee_update.set_defaults(
-        func=lambda args: update_mentee(args.id, args.cohort))
+        func=cli_update)
 
     # mentee delete
     mentee_delete = mentee_sub.add_parser("delete")
     mentee_delete.add_argument("--id", required=True, type=int)
-    mentee_delete.set_defaults(func=lambda args: delete_mentee(args.id))
+    mentee_delete.set_defaults(func=cli_delete)
 
     # -- report --
     report = subparsers.add_parser("report")
